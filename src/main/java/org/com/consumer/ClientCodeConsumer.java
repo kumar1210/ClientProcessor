@@ -9,7 +9,7 @@ import static org.com.constants.GeneratorConstants.TEMPLATE_JAVA_FILE_NAME;
 import org.com.helpers.AwsJavaCodeGenerator;
 import org.com.helpers.CodeGenerator;
 import org.com.pojo.LambdaDetails;
-import org.com.util.GitUtil;
+import org.com.util.RepoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -43,9 +43,11 @@ public class ClientCodeConsumer {
 		logger.info("New file has generated at : " + newFile);
 
 		try {
-			String templateProjectPath = GitUtil.getGitRepo();
+			String templateProjectPath = RepoUtil.getGitRepo();
 			logger.info("template project has been pulled at : " + templateProjectPath);
-			GitUtil.replaceFileInBaseRepo(newFile, templateProjectPath);
+			Boolean replacedStatus = RepoUtil.replaceFileInBaseRepo(newFile, templateProjectPath);
+			String mvnLogs = RepoUtil.compileLambdaProject();
+			logger.info(mvnLogs);
 		} catch (Exception e) {
 			logger.error("Error while cloning git repo : " + e);
 		}
@@ -58,7 +60,7 @@ public class ClientCodeConsumer {
 
 		unitLambda.setLambdaApi("https://aws.dummy.url");
 
-		logger.info("User script has been consumed, and processed successfully " + unitLambda.toString());
+		//logger.info("User script has been consumed, and processed successfully " + unitLambda.toString());
 		return new ResponseEntity<LambdaDetails>(unitLambda, HttpStatus.OK);
 
 	}

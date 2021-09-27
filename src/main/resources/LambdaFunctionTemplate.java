@@ -16,11 +16,18 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 /**
  * Handler for requests to Lambda function.
  */
-public class LambdaFunctionTemplate implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class LambdaFunction implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
 	public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent input, final Context context) {
 		
 
 		//This is a template file, code needs to be added here.
 	}
+	
+    private String getPageContents(String address) throws IOException{
+        URL url = new URL(address);
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            return br.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
+    }
 }

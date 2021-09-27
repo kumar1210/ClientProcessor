@@ -11,16 +11,16 @@ import org.springframework.context.annotation.ComponentScan;
  *
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {"org.com.consumer"})
-public class ProcessorLauncher 
-{
-	
+@ComponentScan(basePackages = { "org.com.consumer" })
+public class ProcessorLauncher {
+
 	private static final Logger logger = LoggerFactory.getLogger(ProcessorLauncher.class);
-	
-    public static void main( String[] args )
-    {
-        logger.info("------------------------- Client Processor is getting instantiated -------------------------------");
-        SpringApplication.run(ProcessorLauncher.class, args);
-        logger.info("------------------------- Client Processor is successfully instantiated -------------------------------");
-    }
+
+	public static void main(String[] args) {
+		logger.info(
+				"------------------------- Client Processor is getting instantiated -------------------------------");
+		SpringApplication.run(ProcessorLauncher.class, args);
+		logger.info(
+				"------------------------- Client Processor is successfully instantiated -------------------------------");
+	}
 }

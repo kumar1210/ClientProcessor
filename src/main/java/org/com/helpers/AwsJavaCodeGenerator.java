@@ -15,6 +15,7 @@ import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * @author gaurkuku
@@ -54,7 +55,6 @@ public class AwsJavaCodeGenerator extends CodeGenerator {
 				writer.write(templateContents);
 				writer.close();
 			}
-			logger.info("Request handler has been successfully created with the code : " + newCode);
 			return newFilePath;
 		} catch (FileNotFoundException e) {
 			logger.error(e.getMessage() + " " + e);

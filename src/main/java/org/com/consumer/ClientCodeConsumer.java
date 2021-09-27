@@ -60,7 +60,7 @@ public class ClientCodeConsumer {
 
 		unitLambda.setLambdaApi("https://aws.dummy.url");
 
-		//logger.info("User script has been consumed, and processed successfully " + unitLambda.toString());
+		logger.info("User script has been consumed, and processed successfully " + unitLambda.toString());
 		return new ResponseEntity<LambdaDetails>(unitLambda, HttpStatus.OK);
 
 	}

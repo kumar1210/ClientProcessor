@@ -9,15 +9,30 @@ package org.com.pojo;
  */
 public class LambdaDetails {
 
-	private String functionCode;
+	private String userCode;
 	private String lambdaApi;
+	private String lambdaName;
 
-	public String getFunctionCode() {
-		return functionCode;
+	/**
+	 * @return the lambdaName
+	 */
+	public String getLambdaName() {
+		return lambdaName;
 	}
 
-	public void setFunctionCode(String functionCode) {
-		this.functionCode = functionCode;
+	/**
+	 * @param lambdaName the lambdaName to set
+	 */
+	public void setLambdaName(String lambdaName) {
+		this.lambdaName = lambdaName;
+	}
+
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
 	}
 
 	public String getLambdaApi() {
@@ -30,6 +45,6 @@ public class LambdaDetails {
 
 	@Override
 	public String toString() {
-		return " { \"FunctionCode\" : " + functionCode + ", \"lambdaApi\" : " + lambdaApi +"}";
+		return " { \"FunctionCode\" : " + userCode + ", \"lambdaApi\" : " + lambdaApi +", \"lambdaName\" : "+ lambdaName + " }";
 	}
 }

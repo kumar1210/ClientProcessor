@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
  *
  */
 @SpringBootApplication
-@ComponentScan(basePackages = { "org.com.consumer" })
+@ComponentScan(basePackages = { "org.com" })
 public class ProcessorLauncher {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessorLauncher.class);

@@ -5,17 +5,23 @@ package org.com.consumer;
 
 import static org.com.constants.GeneratorConstants.LAMBDA_JAVA_FUNCTION_REPLACE_STRING;
 import static org.com.constants.GeneratorConstants.TEMPLATE_JAVA_FILE_NAME;
+import static org.com.constants.GeneratorConstants.JAVA_FILE_EXTENSION;
+import static org.com.constants.GeneratorConstants.SUCCESS;
 
-import org.com.helpers.AwsJavaCodeGenerator;
+import java.util.function.BiFunction;
+
 import org.com.helpers.CodeGenerator;
 import org.com.pojo.LambdaDetails;
 import org.com.util.RepoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -25,34 +31,52 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ClientCodeConsumer {
 
+	@Autowired
+	@Qualifier("resourcePath")
+	String resourcePath;
+
+	@Autowired
+	@Qualifier("lambdaHomePath")
+	String lambdaHomePath;
+
+	@Autowired
+	@Qualifier("generatorFactory")
+	private BiFunction<String, String, CodeGenerator> javaGeneratorFactory;
+	
+	@Autowired
+	RepoUtil repoUtil;
+
 	private static final Logger logger = LoggerFactory.getLogger(ClientCodeConsumer.class);
 
-	@PostMapping("/publishCode")
-	public ResponseEntity<LambdaDetails> consumeScript(@RequestBody String userCode) {
+	@PostMapping("/publishJavaCode")
+	public ResponseEntity<LambdaDetails> consumeScript(@RequestBody String userCode, @RequestHeader String lambdaName) {
 
-		// logger.info("User script has been consumed, processing will be starting soon
-		// with data : " + userCode);
+		logger.info("User script has been consumed, processing will be starting soon");
 		LambdaDetails unitLambda = new LambdaDetails();
-		unitLambda.setFunctionCode(userCode);
+		unitLambda.setUserCode(userCode);
+		unitLambda.setLambdaName(lambdaName);
 
-		// generates a new class AwsFunction.java, check template java-aws-sample ->
-		// App.java
-		CodeGenerator generator = new AwsJavaCodeGenerator(TEMPLATE_JAVA_FILE_NAME,
+		CodeGenerator generator = javaGeneratorFactory.apply(TEMPLATE_JAVA_FILE_NAME,
 				LAMBDA_JAVA_FUNCTION_REPLACE_STRING);
-		String newFile = generator.generate(userCode);
-		logger.info("New file has generated at : " + newFile);
+		generator.setLambdaDetails(unitLambda);
+		generator.setFileExtension(JAVA_FILE_EXTENSION);
+		String newFileContent = generator.generate(unitLambda);
+		String newFilePath = generator.createFile(newFileContent, lambdaHomePath);
+		logger.info("New file has generated at : " + newFilePath);
 
-		try {
-			String templateProjectPath = RepoUtil.getGitRepo();
-			logger.info("template project has been pulled at : " + templateProjectPath);
-			Boolean replacedStatus = RepoUtil.replaceFileInBaseRepo(newFile, templateProjectPath);
-			String mvnLogs = RepoUtil.compileLambdaProject();
-			logger.info(mvnLogs);
-		} catch (Exception e) {
-			logger.error("Error while cloning git repo : " + e);
+		String gitCloneStatus = repoUtil.getGitRepo(generator);
+		if (SUCCESS.equalsIgnoreCase(gitCloneStatus)) {
+			logger.info("template project has been pulled : " + gitCloneStatus);
+		} else {
+			return new ResponseEntity<LambdaDetails>(HttpStatus.FAILED_DEPENDENCY);
 		}
-		// mvn build to compile the new code
-		// -- also create a docker container
+		Boolean replacedStatus = repoUtil.replaceFileInBaseRepo(generator);
+		if (replacedStatus) {
+			String mvnLogs = repoUtil.compileLambdaProject(generator);
+			logger.info(mvnLogs);
+		} else {
+			logger.error("Failed while copying the generated file to base template project " + replacedStatus);
+		}
 
 		// deploy generated container as a lambda function
 
